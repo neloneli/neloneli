@@ -207,6 +207,7 @@ Question::Question(std::vector<std::string>& vs)
 
 }
 
+
 void Question::get_DataOper(std::vector<std::string>& vs)
 {
 	int dp1, dp2, dp3, oper1, oper2;
@@ -320,10 +321,65 @@ void Question::get_str()
 
 //判断相等
 bool Question::operator==(const Question& other) const {
-	if (data == other.data && oper == other.oper && step == other.step)
-		return true;
-	else
-		return false;
+	std::string q1, q2;
+	for (int i = 1; i < que.size()-1; ++i)
+	{
+		q1 += que[i];
+	};
+	for (int i = 1; i < other.que.size() - 1; ++i)
+	{
+		q2 += other.que[i];
+	}
+	return areEquivalent(q1, q2);
+	
+}
+
+
+std::vector<std::string> Question::infixToPostfix(const std::string& infix) const{
+	std::stack<char> operators;
+	std::vector<std::string> postfix;
+	for (char ch : infix) {
+		if (isdigit(ch)) {
+			std::string num(1, ch);
+			postfix.insert(postfix.end(), num);
+		}
+		else if (ch == '(') {
+			operators.push(ch);
+		}
+		else if (ch == ')') {
+			while (!operators.empty() && operators.top() != '(') {
+				postfix.push_back(std::string(1, operators.top()));
+				operators.pop();
+			}
+			operators.pop(); // Remove '(' from the stack
+		}
+		else {
+			while (!operators.empty() && precedence(operators.top()) >= precedence(ch)) {
+				postfix.push_back(std::string(1, operators.top()));
+				operators.pop();
+			}
+			operators.push(ch);
+		}
+	}
+	while (!operators.empty()) {
+		postfix.push_back(std::string(1, operators.top()));
+		operators.pop();
+	}
+	return postfix;
+}
+
+// 比较两个表达式是否等价
+bool Question::areEquivalent(const std::string& expr1, const std::string& expr2) const{
+	auto postfix1 = infixToPostfix(expr1);
+	auto postfix2 = infixToPostfix(expr2);
+	return postfix1 == postfix2;
+}
+
+// 定义运算符的优先级
+int Question::precedence(char op) const{
+	if (op == '+' || op == '-') return 1;
+	if (op == '*' || op == '/') return 2;
+	return 0;
 }
 
 void Question::ran_oper()
@@ -463,6 +519,14 @@ Fraction Question::_calculate(Fraction& tmp1, Fraction& tmp2, int st)
 		break;
 	}
 }
+Fraction Question::get_fra_res()
+{
+	return result;
+}
+std::string Question::get_str_res()
+{
+	return res;
+}
 
 
 float MyHash::operator()(const Fraction& res) const {
@@ -504,7 +568,7 @@ void Generator::Create()
 		else
 		{
 			questions.push_back(q);
-			record.insert({ q.result, q });
+			record.insert({ q.get_fra_res(), q});
 		}
 	}
 	Write();
@@ -513,9 +577,9 @@ void Generator::Create()
 //判断有无相同的题目
 bool Generator::judge(Question& q)
 {
-	if (record.count(q.result) != 0)
+	if (record.count(q.get_fra_res()) != 0)
 	{
-		auto range = record.equal_range(q.result);
+		auto range = record.equal_range(q.get_fra_res());
 		for (auto it = range.first; it != range.second; it++)
 		{
 			if (it->second == q)
@@ -543,7 +607,7 @@ void Generator::Write()
 	AnsFile.open(aFile);
 	for (int i = 0; i < questions.size(); i++)
 	{
-		AnsFile << std::to_string(i + 1) << ".   " << questions[i].res << std::endl;
+		AnsFile << std::to_string(i + 1) << ".   " << questions[i].get_str_res() << std::endl;
 	}
 }
 //根据题目和答案判断正确率
@@ -590,7 +654,7 @@ void Generator::_accuracy(std::vector<Question>& que, std::vector<Fraction>& ans
 	for (int i = 0; i < que.size(); i++)
 	{
 		std::stringstream ss;
-		if (que[i].result != ans[i])
+		if (que[i].get_fra_res() != ans[i])
 		{
 			wrong++;
 			ss << i + 1;

@@ -49,7 +49,7 @@ public:
 
 class Question //管理一个计算题的类
 {
-public:
+private:
 	int range;//数值的范围
 	int num;//计算数字的个数（两个或三个）
 	bool par_flag;//有无括号
@@ -74,6 +74,11 @@ public:
 	void get_result();//得到本题结果
 	void calculate();//生成运算先后步骤，被get_result()调用
 	Fraction _calculate(Fraction& tmp1, Fraction& tmp2, int st);//计算两个分数的运算结果，被calculate调用
+	Fraction get_fra_res();
+	std::string get_str_res();
+	std::vector<std::string> infixToPostfix(const std::string& infix)const;
+	bool areEquivalent(const std::string& expr1, const std::string& expr2)const;
+	int precedence(char op)const;
 };
 
 class MyHash {
@@ -101,3 +106,4 @@ public:
 };
 
 # endif //ARITH_H
+

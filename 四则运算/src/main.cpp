@@ -4,6 +4,11 @@
 int main(int argc, char* argv[])
 {
 	try {
+		if (argc != 5)
+		{
+			std::cout << "输入参数不完整" << std::endl;
+			return 1;
+		}
 		std::vector<std::string> args;
 		for (int i = 0; i < argc; ++i)
 		{
@@ -27,9 +32,10 @@ int main(int argc, char* argv[])
 			else
 			{
 				std::cout << "输入参数不完整" << std::endl;
-				return 0;
+				return 1;
 			}
 			Generator gen(num, range);
+			std::cout << "生成成功";
 		}
 		else if (args[1] == "-e" || args[1] == "-a")
 		{
@@ -47,15 +53,17 @@ int main(int argc, char* argv[])
 			else
 			{
 				std::cout << "输入参数不完整" << std::endl;
-				return 0;
+				return 1;
 			}
 
 			Generator gen(args[epos].c_str(), args[apos].c_str());
+			std::cout << "判题成功" << std::endl;
 
 		}
 		else
 		{
 			std::cout << "输入参数不完整" << std::endl;
+			return 1;
 		}
 
 		return 0;
